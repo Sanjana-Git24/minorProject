@@ -25,76 +25,71 @@
         }
 
         /* ══════════════════════════════════════
-           SLIDERS — fixed behind everything
+           MAIN CONTENT — flows in normal doc
         ══════════════════════════════════════ */
-        .slider-bg {
+
+        /* The fixed wrapper covers the whole viewport and is clipped */
+        .diag-bg {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+            inset: 0;
             z-index: 0;
             pointer-events: none;
-        }
-
-        .slider-bg-bottom {
-            position: fixed;
-            bottom: 40px; /* above footer */
-            left: 0;
-            width: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .slider {
-            width: 100%;
-            height: var(--height);
             overflow: hidden;
-            mask-image: linear-gradient(to right, transparent, #000 10% 90%, transparent);
-            -webkit-mask-image: linear-gradient(to right, transparent, #000 10% 90%, transparent);
         }
 
-        .slider .list {
-            display: flex;
-            width: 100%;
-            min-width: calc(var(--width) * var(--quantity));
-            position: relative;
-        }
-
-        .slider .list .item {
-            width: var(--width);
-            height: var(--height);
+        /* Dark vignette overlay so the glass card stays readable */
+        .diag-bg::after {
+            content: '';
             position: absolute;
-            left: 100%;
-            animation: autoRun 10s linear infinite;
-            transition: filter 0.5s;
-            animation-delay: calc( (10s / var(--quantity)) * (var(--position) - 1) ) !important;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(24,24,24,0.55) 0%, rgba(24,24,24,0.82) 100%);
+            z-index: 1;
         }
 
-        .slider .list .item img {
+        /* Each strip is a horizontal scrolling row that we then rotate */
+        .diag-strip {
+            position: absolute;
+            left: -60%;          /* extend past both edges after rotation */
+            width: 220%;         /* wide enough to fill after rotation    */
+            display: flex;
+            gap: 14px;
+            transform: rotate(-30deg);   /* "/" diagonal angle               */
+            transform-origin: center center;
+            will-change: transform;
+        }
+
+        /* Three strips stacked vertically (spread via top offset) */
+        .diag-strip:nth-child(1) { top: -18%;  }
+        .diag-strip:nth-child(2) { top:  28%;  }
+        .diag-strip:nth-child(3) { top:  74%;  }
+
+        /* Each strip scrolls left; alternate strips go right for variety */
+        .diag-strip:nth-child(1) { animation: diagLeft  38s linear infinite; }
+        .diag-strip:nth-child(2) { animation: diagRight 42s linear infinite; }
+        .diag-strip:nth-child(3) { animation: diagLeft  35s linear infinite; }
+
+        @keyframes diagLeft  { from { transform: rotate(-30deg) translateX(0);      }
+                                to   { transform: rotate(-30deg) translateX(-50%);   } }
+        @keyframes diagRight { from { transform: rotate(-30deg) translateX(-50%);   }
+                                to   { transform: rotate(-30deg) translateX(0);      } }
+
+        /* Individual poster tiles inside each strip */
+        .diag-item {
+            flex-shrink: 0;
+            width: 200px;
+            height: 280px;
+            border-radius: 14px;
+            overflow: hidden;
+            opacity: 0.55;
+            border: 2px solid rgba(255,255,255,0.06);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        .diag-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            display: block;
         }
-
-        @keyframes autoRun {
-            from { left: 100%; }
-            to   { left: calc(var(--width) * -1); }
-        }
-
-        .slider[reverse="true"] .list .item {
-            left: calc(var(--width) * -1);
-            animation: reversePlay 10s linear infinite;
-            animation-delay: calc( (10s / var(--quantity)) * (var(--position) - 1) * -1 ) !important;
-        }
-
-        @keyframes reversePlay {
-            from { left: calc(var(--width) * -1); }
-            to   { left: 100%; }
-        }
-
-        /* ══════════════════════════════════════
-           MAIN CONTENT — flows in normal doc
-        ══════════════════════════════════════ */
         #page-content {
             position: relative;
             z-index: 2;
@@ -336,6 +331,65 @@
             z-index: 3;
         }
 
+        /* ── Film Reel Loader ── */
+        #dualLoader {
+            display: none;
+            position: fixed;
+            z-index: 9000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background: rgba(18, 18, 18, 0.97);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+        }
+        #dualLoader.active { display: flex; }
+        .reel-wrap { position: relative; width: 90px; height: 90px; }
+        .reel-ring {
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            border: 6px solid rgba(255,165,0,0.15);
+            border-top-color: orange;
+            animation: reelSpin 0.9s linear infinite;
+            position: absolute; top: 0; left: 0;
+        }
+        .reel-ring-inner {
+            width: 58px; height: 58px;
+            border-radius: 50%;
+            border: 4px solid rgba(255,165,0,0.1);
+            border-bottom-color: #e53935;
+            animation: reelSpin 1.3s linear infinite reverse;
+            position: absolute; top: 10px; left: 10px;
+        }
+        .reel-center {
+            width: 22px; height: 22px;
+            background: orange; border-radius: 50%;
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+        }
+        @keyframes reelSpin { to { transform: rotate(360deg); } }
+        .dual-loader-movies { display: flex; align-items: center; gap: 14px; }
+        .dlm-poster {
+            width: 52px; height: 72px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,165,0,0.3);
+            animation: posterPulse 1.4s ease-in-out infinite;
+        }
+        .dlm-poster:nth-child(3) { animation-delay: 0.7s; }
+        .dlm-vs { color: orange; font-size: 14px; font-weight: bold; letter-spacing: 2px; }
+        @keyframes posterPulse {
+            0%,100% { opacity:0.4; transform:scaleY(1); }
+            50%      { opacity:1;   transform:scaleY(1.06); }
+        }
+        .dual-loader-text {
+            color: #fff; font-size: 14px;
+            letter-spacing: 3px; text-transform: uppercase;
+            animation: loaderPulse 1.4s ease-in-out infinite;
+        }
+        @keyframes loaderPulse { 0%,100%{opacity:0.4;} 50%{opacity:1;} }
+
         @media (max-width: 750px) {
             .dual-container { padding: 28px 20px; }
             #autoComplete, #autoComplete2 { width: 100% !important; }
@@ -348,39 +402,84 @@
 
 <body>
 
-    <!-- SLIDER TOP (fixed background) -->
-    <div class="slider-bg">
-        <div class="slider" style="--width:350px; --height:220px; --quantity:10;">
-            <div class="list">
-                <div class="item" style="--position:1"><img src="/static/img1.jpg"    alt=""></div>
-                <div class="item" style="--position:2"><img src="/static/img2.jpg"    alt=""></div>
-                <div class="item" style="--position:3"><img src="/static/img3.jpg"    alt=""></div>
-                <div class="item" style="--position:4"><img src="/static/img4.jpeg"   alt=""></div>
-                <div class="item" style="--position:5"><img src="/static/img5.jpeg"   alt=""></div>
-                <div class="item" style="--position:6"><img src="/static/img6.jpeg"   alt=""></div>
-                <div class="item" style="--position:7"><img src="/static/img7.jpeg"   alt=""></div>
-                <div class="item" style="--position:8"><img src="/static/img8.jpeg"   alt=""></div>
-                <div class="item" style="--position:9"><img src="/static/img9.jpeg"   alt=""></div>
-                <div class="item" style="--position:10"><img src="/static/img10.jpeg" alt=""></div>
-            </div>
-        </div>
-    </div>
+    <!-- DIAGONAL CAROUSEL BACKGROUND -->
+    <div class="diag-bg">
 
-    <!-- SLIDER BOTTOM (fixed background) -->
-    <div class="slider-bg-bottom">
-        <div class="slider" reverse="true" style="--width:350px; --height:220px; --quantity:9;">
-            <div class="list">
-                <div class="item" style="--position:1"><img src="/static/img6.jpeg"   alt=""></div>
-                <div class="item" style="--position:2"><img src="/static/img7.jpeg"   alt=""></div>
-                <div class="item" style="--position:3"><img src="/static/img8.jpeg"   alt=""></div>
-                <div class="item" style="--position:4"><img src="/static/img9.jpeg"   alt=""></div>
-                <div class="item" style="--position:5"><img src="/static/img10.jpeg"  alt=""></div>
-                <div class="item" style="--position:6"><img src="/static/img1.jpg"    alt=""></div>
-                <div class="item" style="--position:7"><img src="/static/img2.jpg"    alt=""></div>
-                <div class="item" style="--position:8"><img src="/static/img3.jpg"    alt=""></div>
-                <div class="item" style="--position:9"><img src="/static/img4.jpeg"   alt=""></div>
-            </div>
+        <!-- Strip 1 — slides left (duplicated for seamless loop) -->
+        <div class="diag-strip">
+            <div class="diag-item"><img src="/static/img1.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img2.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img3.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img4.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img5.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img6.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img7.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img8.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img9.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img10.jpeg"  alt=""></div>
+            <!-- duplicate for seamless loop -->
+            <div class="diag-item"><img src="/static/img1.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img2.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img3.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img4.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img5.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img6.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img7.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img8.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img9.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img10.jpeg"  alt=""></div>
         </div>
+
+        <!-- Strip 2 — slides right -->
+        <div class="diag-strip">
+            <div class="diag-item"><img src="/static/img6.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img7.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img8.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img9.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img10.jpeg"  alt=""></div>
+            <div class="diag-item"><img src="/static/img1.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img2.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img3.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img4.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img5.jpeg"   alt=""></div>
+            <!-- duplicate -->
+            <div class="diag-item"><img src="/static/img6.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img7.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img8.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img9.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img10.jpeg"  alt=""></div>
+            <div class="diag-item"><img src="/static/img1.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img2.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img3.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img4.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img5.jpeg"   alt=""></div>
+        </div>
+
+        <!-- Strip 3 — slides left -->
+        <div class="diag-strip">
+            <div class="diag-item"><img src="/static/img3.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img4.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img5.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img1.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img8.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img9.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img10.jpeg"  alt=""></div>
+            <div class="diag-item"><img src="/static/img2.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img6.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img7.jpeg"   alt=""></div>
+            <!-- duplicate -->
+            <div class="diag-item"><img src="/static/img3.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img4.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img5.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img1.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img8.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img9.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img10.jpeg"  alt=""></div>
+            <div class="diag-item"><img src="/static/img2.jpg"    alt=""></div>
+            <div class="diag-item"><img src="/static/img6.jpeg"   alt=""></div>
+            <div class="diag-item"><img src="/static/img7.jpeg"   alt=""></div>
+        </div>
+
     </div>
 
     <!-- MAIN CONTENT -->
@@ -412,6 +511,21 @@
         <div id="dualResultsWrapper" class="box"></div>
     </div>
 
+    <!-- FILM REEL DUAL LOADER -->
+    <div id="dualLoader">
+        <div class="reel-wrap">
+            <div class="reel-ring"></div>
+            <div class="reel-ring-inner"></div>
+            <div class="reel-center"></div>
+        </div>
+        <div class="dual-loader-movies">
+            <div class="dlm-poster"></div>
+            <div class="dlm-vs">VS</div>
+            <div class="dlm-poster"></div>
+        </div>
+        <div class="dual-loader-text">Finding the perfect match…</div>
+    </div>
+
     <!-- FOOTER -->
     <div class="footer">© 2026, Made By Sanjana Nakum</div>
 
@@ -422,6 +536,57 @@
 <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@7.2.0/dist/js/autoComplete.min.js"></script>
 <script src="/static/autocomplete.js"></script>
 <script src="/static/recommend.js"></script>
+
+<style>
+  body.zoom-exit {
+    animation: zoomExitBody 0.55s cubic-bezier(0.4,0,0.2,1) forwards;
+  }
+  @keyframes zoomExitBody {
+    0%   { transform: scale(1);    filter: brightness(1); }
+    60%  { transform: scale(1.08); filter: brightness(1.3); }
+    100% { transform: scale(1.25); filter: brightness(0) blur(6px); opacity: 0; }
+  }
+  @keyframes zoomPunch {
+    0%   { transform: scale(1);    filter: brightness(1); }
+    50%  { transform: scale(1.06); filter: brightness(1.4); }
+    100% { transform: scale(1);    filter: brightness(1); }
+  }
+</style>
+
+<script>
+  // Zoom-exit then navigate to a URL
+  function zoomExit(originEl, url) {
+    if (originEl) {
+      const r = originEl.getBoundingClientRect();
+      const ox = ((r.left + r.width  / 2) / window.innerWidth  * 100).toFixed(1) + '%';
+      const oy = ((r.top  + r.height / 2) / window.innerHeight * 100).toFixed(1) + '%';
+      document.documentElement.style.setProperty('--ox', ox);
+      document.documentElement.style.setProperty('--oy', oy);
+    }
+    document.body.classList.add('zoom-exit');
+    if (url) setTimeout(() => { window.location.href = url; }, 520);
+  }
+
+  // Find Movie button — punch zoom then let recommend.js handle it
+  const findBtn = document.getElementById('dualBtn');
+  if (findBtn) {
+    findBtn.addEventListener('click', function() {
+      document.body.style.animation = 'zoomPunch 0.35s cubic-bezier(0.4,0,0.2,1) forwards';
+      setTimeout(() => { document.body.style.animation = ''; }, 360);
+    }, true);
+  }
+
+  // Movie result cards — zoom exit then navigate to /?movie=...
+  document.addEventListener('click', function(e) {
+    const card = e.target.closest('.movie-card');
+    if (!card) return;
+    const movie = card.getAttribute('data-movie');
+    if (!movie) return;
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    zoomExit(card, '/?movie=' + encodeURIComponent(movie));
+  }, true);
+</script>
 
 </body>
 </html>

@@ -41,10 +41,10 @@ function load_details(my_api_key,title){
       if(movie.results.length<1){
         $('.fail').css('display','block');
         $('.results').css('display','none');
-        $("#loader").delay(500).fadeOut();
+        document.getElementById('loader').classList.remove('active');
       }
       else{
-        $("#loader").fadeIn();
+        document.getElementById('loader').classList.add('active');
         $('.fail').css('display','none');
         $('.results').delay(1000).css('display','block');
         var movie_id = movie.results[0].id;
@@ -54,7 +54,7 @@ function load_details(my_api_key,title){
     },
     error: function(){
       alert('Invalid Request');
-      $("#loader").delay(500).fadeOut();
+      document.getElementById("loader").classList.remove("active");
     },
   });
 }
@@ -69,7 +69,7 @@ function movie_recs(movie_title,movie_id,my_api_key){
       if(recs=="Sorry! The movie you requested is not in our database. Please check the spelling or try with some other movies"){
         $('.fail').css('display','block');
         $('.results').css('display','none');
-        $("#loader").delay(500).fadeOut();
+        document.getElementById('loader').classList.remove('active');
       }
       else {
         $('.fail').css('display','none');
@@ -84,7 +84,7 @@ function movie_recs(movie_title,movie_id,my_api_key){
     },
     error: function(){
       alert("error recs");
-      $("#loader").delay(500).fadeOut();
+      document.getElementById("loader").classList.remove("active");
     },
   }); 
 }
@@ -99,7 +99,7 @@ function get_movie_details(movie_id,my_api_key,arr,movie_title) {
     },
     error: function(){
       alert("API Error!");
-      $("#loader").delay(500).fadeOut();
+      document.getElementById('loader').classList.remove('active');
     },
   });
 }
@@ -160,7 +160,7 @@ function show_details(movie_details,arr,movie_title,my_api_key,movie_id){
     url:"/recommend",
     dataType: 'html',
     complete: function(){
-      $("#loader").delay(500).fadeOut();
+      document.getElementById('loader').classList.remove('active');
     },
     success: function(response) {
       $('.results').html(response);
@@ -218,7 +218,7 @@ function get_movie_cast(movie_id,my_api_key){
       },
       error: function(){
         alert("Invalid Request!");
-        $("#loader").delay(500).fadeOut();
+        document.getElementById("loader").classList.remove("active");
       }
     });
 
@@ -238,7 +238,7 @@ function get_movie_posters(arr,my_api_key){
       },
       error: function(){
         alert("Invalid Request!");
-        $("#loader").delay(500).fadeOut();
+        document.getElementById("loader").classList.remove("active");
       },
     })
   }
@@ -257,6 +257,9 @@ function dual_start() {
     return;
   }
 
+  const dualLoader = document.getElementById('dualLoader');
+  if (dualLoader) dualLoader.classList.add('active');
+
   $.ajax({
     type: 'POST',
     url: "/dual_recommend",
@@ -265,6 +268,7 @@ function dual_start() {
       movie2: movie2
     },
     success: function(response){
+      if (dualLoader) dualLoader.classList.remove('active');
       var recs = response.split('---');
 
       if(recs.length === 0){
@@ -342,6 +346,7 @@ document.querySelectorAll("#dualResults li").forEach(item => {
 });
     },
     error: function(){
+      if (dualLoader) dualLoader.classList.remove('active');
       alert("Error in dual recommendation");
     }
   });

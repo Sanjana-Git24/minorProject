@@ -228,18 +228,177 @@
       padding: 10px 0;
     }
 
-    /* loader */
+    /* ── Popcorn Search Loader ── */
     #loader {
       display: none;
       position: fixed;
       z-index: 9000;
       left: 0; top: 0;
       width: 100%; height: 100%;
-      background-image: url("../static/loader.gif");
-      background-size: 20%;
-      background-position: 50% 50%;
-      background-color: rgba(255,255,255,1);
-      background-repeat: no-repeat;
+      background: rgba(18, 18, 18, 0.96);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+    #loader.active { display: flex; }
+
+    .popcorn-box {
+      width: 80px;
+      height: 70px;
+      background: linear-gradient(135deg, #e53935, #b71c1c);
+      border-radius: 0 0 18px 18px;
+      position: relative;
+      box-shadow: 0 6px 24px rgba(229,57,53,0.4);
+    }
+    .popcorn-box::before {
+      content: '';
+      position: absolute;
+      top: -10px; left: -6px;
+      width: calc(100% + 12px);
+      height: 22px;
+      background: #c62828;
+      border-radius: 6px;
+    }
+    .popcorn-box::after {
+      content: '';
+      position: absolute;
+      top: 12px; left: 0; right: 0;
+      height: 100%;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent, transparent 10px,
+        rgba(255,255,255,0.12) 10px, rgba(255,255,255,0.12) 20px
+      );
+      border-radius: 0 0 18px 18px;
+    }
+    .kernels {
+      position: absolute;
+      top: -52px; left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+    }
+    .kernel {
+      width: 18px; height: 18px;
+      border-radius: 50% 50% 40% 60%;
+      animation: popKernel 1.1s ease-in-out infinite;
+    }
+    .kernel:nth-child(1) { background: #fff9c4; animation-delay: 0s;    border-radius: 60% 40% 50% 50%; }
+    .kernel:nth-child(2) { background: #fff3e0; animation-delay: 0.18s; border-radius: 50% 60% 40% 50%; }
+    .kernel:nth-child(3) { background: #fff9c4; animation-delay: 0.36s; border-radius: 40% 50% 60% 40%; }
+    .kernel:nth-child(4) { background: #fff3e0; animation-delay: 0.54s; border-radius: 55% 45% 50% 50%; }
+    .kernel:nth-child(5) { background: #fff9c4; animation-delay: 0.72s; border-radius: 45% 55% 40% 60%; }
+
+    @keyframes popKernel {
+      0%   { transform: translateY(0)    scale(1);    opacity: 1; }
+      40%  { transform: translateY(-34px) scale(1.2); opacity: 1; }
+      70%  { transform: translateY(-28px) scale(1.1); opacity: 0.9; }
+      100% { transform: translateY(0)    scale(1);    opacity: 1; }
+    }
+    .loader-text {
+      color: #fff;
+      font-size: 15px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50%       { opacity: 1; }
+    }
+
+    /* ── Watch Together Transition Overlay ── */
+    #watchTogetherOverlay {
+      display: none;
+      position: fixed;
+      z-index: 9500;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: #181818;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+    }
+    #watchTogetherOverlay.active { display: flex; }
+
+    .clapperboard {
+      width: 100px;
+      height: 80px;
+      background: #1a1a1a;
+      border: 3px solid #fff;
+      border-radius: 6px;
+      position: relative;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+    .clapper-top {
+      position: absolute;
+      top: -28px; left: -3px;
+      width: calc(100% + 6px);
+      height: 30px;
+      background: #222;
+      border: 3px solid #fff;
+      border-radius: 6px 6px 0 0;
+      overflow: hidden;
+      transform-origin: left top;
+      animation: clapperSnap 1.2s ease-in-out infinite;
+    }
+    .clapper-stripes {
+      display: flex;
+      height: 100%;
+    }
+    .clapper-stripes span {
+      flex: 1;
+      background: repeating-linear-gradient(
+        90deg,
+        #fff 0px, #fff 6px,
+        #111 6px, #111 12px
+      );
+    }
+    .clapper-body-lines {
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .clapper-body-lines div {
+      height: 4px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 2px;
+    }
+    @keyframes clapperSnap {
+      0%   { transform: rotate(0deg); }
+      20%  { transform: rotate(-35deg); }
+      35%  { transform: rotate(0deg); }
+      100% { transform: rotate(0deg); }
+    }
+
+    .film-dots {
+      display: flex;
+      gap: 10px;
+    }
+    .film-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: orange;
+      animation: filmDot 1s ease-in-out infinite;
+    }
+    .film-dot:nth-child(1) { animation-delay: 0s; }
+    .film-dot:nth-child(2) { animation-delay: 0.15s; }
+    .film-dot:nth-child(3) { animation-delay: 0.30s; }
+    .film-dot:nth-child(4) { animation-delay: 0.45s; }
+    .film-dot:nth-child(5) { animation-delay: 0.60s; }
+    @keyframes filmDot {
+      0%, 100% { transform: scaleY(1);   opacity: 0.3; }
+      50%       { transform: scaleY(1.8); opacity: 1; }
+    }
+    .overlay-text {
+      color: orange;
+      font-size: 16px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-weight: bold;
     }
 
     /* modals — always on top of everything */
@@ -314,7 +473,39 @@
     </div>
   </div>
 
-  <div id="loader"></div>
+  <!-- POPCORN SEARCH LOADER -->
+  <div id="loader">
+    <div class="popcorn-box">
+      <div class="kernels">
+        <div class="kernel"></div>
+        <div class="kernel"></div>
+        <div class="kernel"></div>
+        <div class="kernel"></div>
+        <div class="kernel"></div>
+      </div>
+    </div>
+    <div class="loader-text">Finding your movie…</div>
+  </div>
+
+  <!-- WATCH TOGETHER TRANSITION OVERLAY -->
+  <div id="watchTogetherOverlay">
+    <div class="clapperboard">
+      <div class="clapper-top">
+        <div class="clapper-stripes"><span></span></div>
+      </div>
+      <div class="clapper-body-lines">
+        <div></div><div></div><div></div>
+      </div>
+    </div>
+    <div class="film-dots">
+      <div class="film-dot"></div>
+      <div class="film-dot"></div>
+      <div class="film-dot"></div>
+      <div class="film-dot"></div>
+      <div class="film-dot"></div>
+    </div>
+    <div class="overlay-text">Watch Together 🎬</div>
+  </div>
   <div class="footer">© 2026, Made By Sanjana Nakum</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@7.2.0/dist/js/autoComplete.min.js"></script>
@@ -325,22 +516,19 @@
   <script type="text/javascript" src="/static/recommend.js"></script>
 
   <script>
-    // After any AJAX completes, move modals from .results up to <body>
-    // This fixes Bootstrap backdrop getting trapped in a nested stacking context
-    $(document).ajaxComplete(function() {
-      $('.results .modal').each(function() {
-        $(this).appendTo('body');
-      });
+    // Watch Together button — show clapperboard overlay then navigate
+    document.querySelector('.btn-together').addEventListener('click', function(e) {
+      e.preventDefault();
+      const overlay = document.getElementById('watchTogetherOverlay');
+      overlay.classList.add('active');
+      setTimeout(() => { window.location.href = this.href; }, 1200);
     });
   </script>
 
   <script>
-    // After recommend.js injects HTML into .results, move all .modal divs
-    // directly to <body> so Bootstrap's backdrop doesn't get trapped
-    $(document).ajaxComplete(function () {
-      $('.results .modal').each(function () {
-        $(this).appendTo('body');
-      });
+    // After any AJAX completes, move modals from .results up to <body>
+    $(document).ajaxComplete(function() {
+      $('.results .modal').each(function() { $(this).appendTo('body'); });
     });
   </script>
 
