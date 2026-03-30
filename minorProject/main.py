@@ -98,6 +98,21 @@ def tmdb_get(path, extra=None):
             pass
     return {}
 
+def fetch_trailer(title, year=''):
+    """Search YouTube for official trailer — no API key needed."""
+    try:
+        from urllib.parse import quote
+        query = f"{title} {year} official trailer"
+        url   = f"https://www.youtube.com/results?search_query={quote(query.strip())}"
+        r     = _session.get(url, timeout=5)
+        if r.status_code == 200:
+            match = re.search(r'"videoId":"([a-zA-Z0-9_-]{11})"', r.text)
+            if match:
+                return match.group(1)
+    except Exception as e:
+        print(f"[Trailer] failed: {e}")
+    return None
+
 def fetch_tmdb_data(movie_title):
     """
     Single TMDB search → gets movie_id → fetches cast, bios, AND reviews in parallel.
@@ -227,13 +242,18 @@ def build_movie_data(title):
     if not movie_data and not matched_title:
         return None
 
-    # Step 4: fetch rec posters + TMDB data (cast, bios, reviews) in parallel
+    # Step 4: fetch rec posters + TMDB data (cast, bios, reviews) + trailer in parallel
     with ThreadPoolExecutor(max_workers=20) as ex:
         f_posters  = {ex.submit(fetch_rec_poster, m): m for m in rec_list}
         f_tmdb     = ex.submit(fetch_tmdb_data, display_title)
+        f_trailer  = ex.submit(fetch_trailer, display_title, movie_data.get('Year', ''))
 
-        rec_posters_map             = {movie: fut.result() for fut, movie in f_posters.items()}
+        rec_posters_map                    = {movie: fut.result() for fut, movie in f_posters.items()}
         casts, cast_details, movie_reviews = f_tmdb.result()
+        try:
+            trailer_id = f_trailer.result(timeout=6)
+        except Exception:
+            trailer_id = None
 
     movie_cards = {rec_posters_map.get(m, PLACEHOLDER): m for m in rec_list}
 
@@ -251,6 +271,7 @@ def build_movie_data(title):
         'reviews':      movie_reviews,
         'casts':        casts,
         'cast_details': cast_details,
+        'trailer_id':   trailer_id,
     }
 
 # ── Flask ─────────────────────────────────────────────────────
